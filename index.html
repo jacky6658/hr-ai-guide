@@ -3,502 +3,546 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HR AI 導入完整指南 - Step1ne 實戰經驗</title>
+    <title>HR AI 導入完整指南 - Step1ne</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --primary-dark: #0A1628;
+            --primary-blue: #1A2F4F;
+            --accent-gold: #D4AF37;
+            --accent-gold-light: #F4E4B7;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B8C5D6;
+            --border-subtle: rgba(212, 175, 55, 0.2);
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro TC", "SF Pro Text", "PingFang TC", "Helvetica Neue", sans-serif;
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            color: #fff;
-            overflow-x: hidden;
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-blue) 100%);
+            color: var(--text-primary);
+            overflow: hidden;
         }
         
         .slide-container {
             width: 100vw;
             height: 100vh;
-            overflow: hidden;
             position: relative;
         }
         
         .slide {
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 80px;
+            padding: 80px 60px;
             position: absolute;
             top: 0;
             left: 0;
-            animation: fadeIn 0.5s ease-in-out;
+            overflow-y: auto;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
         
         .slide.active {
             display: flex;
+            opacity: 1;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        h1 {
-            font-size: 4.5em;
+        /* Logo區域 */
+        .logo {
+            position: fixed;
+            top: 30px;
+            left: 40px;
+            font-size: 1.8em;
             font-weight: 700;
+            color: var(--accent-gold);
+            letter-spacing: 2px;
+            z-index: 100;
+        }
+        
+        /* 進度條 */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent-gold);
+            transition: width 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 0 10px var(--accent-gold);
+        }
+        
+        /* 頁碼 */
+        .slide-number {
+            position: fixed;
+            top: 35px;
+            right: 40px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            font-weight: 300;
+            z-index: 100;
+        }
+        
+        /* 內容區域 */
+        .content {
+            max-width: 1100px;
+            width: 100%;
+        }
+        
+        /* 標題樣式 */
+        h1 {
+            font-size: 3.5em;
+            font-weight: 900;
             margin-bottom: 30px;
             text-align: center;
             line-height: 1.2;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-gold-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         h2 {
-            font-size: 3em;
-            font-weight: 600;
+            font-size: 2.8em;
+            font-weight: 700;
             margin-bottom: 40px;
             text-align: center;
+            color: var(--accent-gold);
+            border-bottom: 2px solid var(--border-subtle);
+            padding-bottom: 20px;
         }
         
         h3 {
-            font-size: 2em;
-            font-weight: 500;
-            margin: 30px 0 20px 0;
-            opacity: 0.95;
+            font-size: 1.6em;
+            font-weight: 600;
+            margin: 25px 0 15px 0;
+            color: var(--accent-gold-light);
         }
         
         .subtitle {
-            font-size: 1.8em;
-            opacity: 0.9;
+            font-size: 1.4em;
+            color: var(--text-secondary);
             margin-bottom: 20px;
             text-align: center;
             font-weight: 300;
         }
         
-        .content {
-            max-width: 1200px;
-            width: 100%;
-        }
-        
+        /* 列表樣式 */
         ul {
             list-style: none;
-            font-size: 1.6em;
-            line-height: 2;
+            font-size: 1.3em;
+            line-height: 1.8;
         }
         
         ul li {
-            margin: 15px 0;
-            padding-left: 40px;
+            margin: 12px 0;
+            padding-left: 35px;
             position: relative;
+            color: var(--text-primary);
         }
         
         ul li:before {
             content: "▸";
             position: absolute;
             left: 0;
+            color: var(--accent-gold);
             font-size: 1.2em;
-            opacity: 0.8;
         }
         
-        /* 手機響應式設計 */
-        @media (max-width: 768px) {
-            .slide {
-                padding: 40px 20px;
-                overflow-y: auto;
-            }
-            
-            h1 {
-                font-size: 2.2em;
-                margin-bottom: 20px;
-            }
-            
-            h2 {
-                font-size: 1.8em;
-                margin-bottom: 25px;
-            }
-            
-            h3 {
-                font-size: 1.4em;
-                margin: 20px 0 15px 0;
-            }
-            
-            .subtitle {
-                font-size: 1.2em;
-                margin-bottom: 15px;
-            }
-            
-            ul {
-                font-size: 1.1em;
-                line-height: 1.6;
-            }
-            
-            ul li {
-                margin: 10px 0;
-                padding-left: 25px;
-            }
-            
-            .highlight {
-                padding: 20px;
-                margin: 15px 0;
-            }
-            
-            .grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .table {
-                font-size: 0.9em;
-            }
-            
-            .table th,
-            .table td {
-                padding: 10px 8px;
-                font-size: 0.85em;
-            }
-            
-            .controls {
-                bottom: 20px;
-                right: 20px;
-                gap: 10px;
-            }
-            
-            button {
-                padding: 18px 30px;
-                font-size: 1.1em;
-                min-width: 80px;
-                min-height: 50px;
-            }
-            
-            .slide-number {
-                bottom: 20px;
-                left: 20px;
-                font-size: 1em;
-            }
-            
-            .big-number {
-                font-size: 3.5em;
-            }
-            
-            .small-text {
-                font-size: 1em;
-            }
-            
-            .code {
-                font-size: 0.8em;
-                padding: 15px;
-            }
-            
-            .flow {
-                flex-direction: column;
-                font-size: 1.1em;
-            }
-            
-            .flow-item {
-                margin: 10px 0;
-                padding: 15px 20px;
-            }
-            
-            .arrow {
-                transform: rotate(90deg);
-                margin: 5px 0;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 1.8em;
-            }
-            
-            h2 {
-                font-size: 1.5em;
-            }
-            
-            h3 {
-                font-size: 1.2em;
-            }
-            
-            ul {
-                font-size: 1em;
-            }
-            
-            .table th,
-            .table td {
-                padding: 8px 5px;
-                font-size: 0.75em;
-            }
-        }
-        
+        /* 重點區塊 */
         .highlight {
-            background: rgba(255,255,255,0.15);
-            padding: 30px 40px;
-            border-radius: 20px;
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid var(--border-subtle);
+            padding: 30px 35px;
+            border-radius: 12px;
             margin: 20px 0;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
         }
         
+        /* 網格佈局 */
         .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            margin: 30px 0;
+            gap: 25px;
+            margin: 25px 0;
         }
         
         .grid-item {
-            background: rgba(255,255,255,0.1);
+            background: rgba(26, 47, 79, 0.4);
+            border: 1px solid var(--border-subtle);
             padding: 25px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            transition: all 0.3s ease;
         }
         
+        .grid-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-gold);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.15);
+        }
+        
+        /* 表格樣式 */
         .table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
-            font-size: 1.3em;
+            font-size: 1.1em;
         }
         
         .table th,
         .table td {
             padding: 15px;
             text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid var(--border-subtle);
         }
         
         .table th {
             font-weight: 600;
-            opacity: 0.9;
+            color: var(--accent-gold);
+            background: rgba(212, 175, 55, 0.08);
         }
         
+        .table tr:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+        
+        /* 控制按鈕 */
         .controls {
             position: fixed;
             bottom: 40px;
-            right: 40px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            gap: 15px;
+            gap: 20px;
             z-index: 1000;
-            pointer-events: auto;
         }
         
-        button {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: #fff;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            border-radius: 10px;
+        .btn {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, #B8961E 100%);
+            border: none;
+            color: var(--primary-dark);
+            padding: 16px 40px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            user-select: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+            font-family: 'Noto Sans TC', sans-serif;
         }
         
-        button:hover {
-            background: rgba(255,255,255,0.3);
+        .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
         }
         
-        button:active {
-            background: rgba(255,255,255,0.4);
-            transform: scale(0.95);
+        .btn:active {
+            transform: scale(0.98);
         }
         
-        .slide-number {
-            position: fixed;
-            bottom: 40px;
-            left: 40px;
-            font-size: 1.2em;
-            opacity: 0.7;
-        }
-        
+        /* Emoji 樣式 */
         .emoji {
-            font-size: 1.2em;
             margin-right: 10px;
         }
         
+        /* 大數字顯示 */
         .big-number {
-            font-size: 6em;
-            font-weight: 700;
+            font-size: 5em;
+            font-weight: 900;
             margin: 20px 0;
-            text-shadow: 0 4px 30px rgba(0,0,0,0.4);
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .small-text {
-            font-size: 1.2em;
-            opacity: 0.8;
+            font-size: 1.1em;
+            color: var(--text-secondary);
         }
         
+        /* 程式碼區塊 */
         .code {
-            background: rgba(0,0,0,0.3);
+            background: rgba(10, 22, 40, 0.6);
+            border: 1px solid var(--border-subtle);
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 8px;
             font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 1.1em;
+            font-size: 0.95em;
             line-height: 1.6;
             overflow-x: auto;
+            color: var(--accent-gold-light);
         }
         
+        /* 流程圖 */
         .flow {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin: 20px 0;
-            font-size: 1.4em;
+            font-size: 1.2em;
         }
         
         .flow-item {
-            background: rgba(255,255,255,0.15);
-            padding: 20px 30px;
-            border-radius: 15px;
+            background: rgba(26, 47, 79, 0.5);
+            border: 2px solid var(--border-subtle);
+            padding: 20px 25px;
+            border-radius: 10px;
             flex: 1;
             text-align: center;
-            margin: 0 10px;
+            margin: 0 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .flow-item:hover {
+            border-color: var(--accent-gold);
+            transform: scale(1.05);
         }
         
         .arrow {
-            font-size: 2em;
+            font-size: 1.8em;
+            color: var(--accent-gold);
             opacity: 0.6;
+        }
+        
+        /* 封面特殊樣式 */
+        .cover {
+            text-align: center;
+        }
+        
+        .cover h1 {
+            font-size: 4.5em;
+            margin-bottom: 20px;
+        }
+        
+        .cover .subtitle {
+            font-size: 1.8em;
+            margin-bottom: 40px;
+        }
+        
+        .cover .company {
+            margin-top: 60px;
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--accent-gold);
+            letter-spacing: 3px;
+        }
+        
+        .cover .tagline {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+        
+        /* 手機響應式 */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 100px 25px 100px 25px;
+            }
+            
+            .logo {
+                font-size: 1.3em;
+                top: 20px;
+                left: 20px;
+            }
+            
+            .slide-number {
+                top: 22px;
+                right: 20px;
+                font-size: 0.8em;
+            }
+            
+            h1 { font-size: 2.2em; }
+            h2 { font-size: 1.8em; }
+            h3 { font-size: 1.3em; }
+            .subtitle { font-size: 1.1em; }
+            ul { font-size: 1em; }
+            ul li { padding-left: 25px; margin: 10px 0; }
+            .highlight { padding: 20px 20px; }
+            .grid { grid-template-columns: 1fr; gap: 15px; }
+            .table { font-size: 0.9em; }
+            .table th, .table td { padding: 10px 8px; }
+            .btn { padding: 18px 30px; font-size: 1em; }
+            .big-number { font-size: 3em; }
+            .flow { flex-direction: column; }
+            .flow-item { margin: 10px 0; width: 100%; }
+            .arrow { transform: rotate(90deg); margin: 5px 0; }
+            .controls { bottom: 20px; gap: 15px; }
+            
+            .cover h1 { font-size: 2.5em; }
+            .cover .subtitle { font-size: 1.3em; }
+            .cover .company { font-size: 1.5em; }
+            .cover .tagline { font-size: 1em; }
         }
     </style>
 </head>
 <body>
+    <div class="logo">STEP1NE</div>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-number">
+        <span id="current">1</span> / <span id="total">21</span>
+    </div>
+
     <div class="slide-container">
         <!-- Slide 1: 封面 -->
         <div class="slide active">
-            <h1>HR AI 導入完整指南</h1>
-            <div class="subtitle">落地型 AI × 選育用留全流程自動化</div>
-            <div class="highlight">
-                <p class="subtitle">Step1ne 實戰經驗總結</p>
-                <p class="small-text">Version 1.0 | 2026-02-15</p>
+            <div class="content cover">
+                <h1>HR AI 導入完整指南</h1>
+                <div class="subtitle">落地型 AI × 選育用留全流程自動化</div>
+                <div class="highlight">
+                    <p class="subtitle">實戰經驗總結 | 2026</p>
+                </div>
+                <div class="company">STEP1NE</div>
+                <div class="tagline">專業獵頭 × AI 賦能</div>
             </div>
         </div>
 
         <!-- Slide 2: 目錄 -->
         <div class="slide">
-            <h2>📋 今天要談的</h2>
             <div class="content">
+                <h2>📋 議程大綱</h2>
                 <ul>
-                    <li><span class="emoji">🎯</span>什麼是「落地型 AI」？</li>
-                    <li><span class="emoji">🔒</span>資安與合規（不可妥協的底線）</li>
-                    <li><span class="emoji">📊</span>導入方法論（如何開始？）</li>
-                    <li><span class="emoji">💼</span>選育用留完整方案（核心價值）</li>
+                    <li><span class="emoji">🎯</span>落地型 AI 核心概念</li>
+                    <li><span class="emoji">🔒</span>資安與合規框架</li>
+                    <li><span class="emoji">📊</span>導入評估與方法論</li>
+                    <li><span class="emoji">💼</span>選育用留完整解決方案</li>
                     <li><span class="emoji">⚙️</span>技術架構設計</li>
                     <li><span class="emoji">💡</span>Step1ne 實戰案例</li>
-                    <li><span class="emoji">💰</span>ROI 與成本控制</li>
+                    <li><span class="emoji">💰</span>ROI 分析與成本控制</li>
                 </ul>
             </div>
         </div>
 
         <!-- Slide 3: 什麼是落地型 AI -->
         <div class="slide">
-            <h2>🎯 什麼是「落地型 AI」？</h2>
             <div class="content">
+                <h2>🎯 什麼是「落地型 AI」？</h2>
                 <div class="grid">
                     <div class="grid-item">
-                        <h3>❌ 不是聊天機器人</h3>
+                        <h3>❌ 傳統聊天機器人</h3>
                         <ul>
-                            <li>只會回答問題</li>
-                            <li>無法執行任務</li>
-                            <li>需要人工執行</li>
+                            <li>僅提供建議</li>
+                            <li>需人工執行</li>
+                            <li>無法整合系統</li>
+                            <li>缺乏可交付成果</li>
                         </ul>
                     </div>
                     <div class="grid-item">
-                        <h3>✅ 是執行系統</h3>
+                        <h3>✅ 落地型 AI</h3>
                         <ul>
-                            <li>自動處理履歷</li>
-                            <li>主動搜尋候選人</li>
+                            <li>自動執行任務</li>
+                            <li>串接企業系統</li>
                             <li>產生可交付成果</li>
+                            <li>持續學習優化</li>
                         </ul>
                     </div>
+                </div>
+                <div class="highlight">
+                    <strong>核心差異</strong>：從「提供建議」到「實際執行」，從「輔助工具」到「自動化系統」
                 </div>
             </div>
         </div>
 
         <!-- Slide 4: AI 成熟度模型 -->
         <div class="slide">
-            <h2>📈 AI 導入成熟度模型</h2>
             <div class="content">
+                <h2>📈 AI 導入成熟度模型</h2>
                 <ul style="font-size: 1.4em;">
-                    <li><strong>Level 0</strong>：人工作業（Excel + Email）</li>
-                    <li><strong>Level 1</strong>：AI 輔助（ChatGPT 寫 JD，人工執行）</li>
-                    <li><strong>Level 2</strong>：流程自動化（AI 自動解析履歷、匯入系統）← <span style="color: #FFD700;">Step1ne 現階段</span></li>
-                    <li><strong>Level 3</strong>：智能決策（AI 預測離職、優化薪資）</li>
-                    <li><strong>Level 4</strong>：自主營運（AI 端到端管理）</li>
+                    <li><strong style="color: var(--text-secondary);">Level 0</strong> - 人工作業（Excel + Email）</li>
+                    <li><strong style="color: var(--text-secondary);">Level 1</strong> - AI 輔助（ChatGPT 提供建議）</li>
+                    <li><strong style="color: var(--accent-gold);">Level 2</strong> - 流程自動化（AI 執行任務）← Step1ne 現階段</li>
+                    <li><strong style="color: var(--text-secondary);">Level 3</strong> - 智能決策（AI 預測與優化）</li>
+                    <li><strong style="color: var(--text-secondary);">Level 4</strong> - 自主營運（AI 端到端管理）</li>
                 </ul>
+                <div class="highlight" style="margin-top: 40px;">
+                    <p><strong>目標</strong>：幫助企業從 Level 0/1 快速進入 Level 2，並為 Level 3 做準備</p>
+                </div>
             </div>
         </div>
 
         <!-- Slide 5: 資安與合規 -->
         <div class="slide">
-            <h2>🔒 資安與合規 - 不可妥協的底線</h2>
             <div class="content">
-                <div class="highlight">
-                    <h3>法規要求</h3>
-                    <ul>
-                        <li><strong>台灣個資法</strong>：告知義務、同意機制、刪除權</li>
-                        <li><strong>GDPR</strong>：數據最小化、自動化決策權、最高罰 2000 萬歐元</li>
-                    </ul>
+                <h2>🔒 資安與合規 - 不可妥協的底線</h2>
+                <div class="grid">
+                    <div class="grid-item">
+                        <h3>法規要求</h3>
+                        <ul>
+                            <li>台灣個資法合規</li>
+                            <li>GDPR 數據保護</li>
+                            <li>告知與同意機制</li>
+                            <li>數據刪除權保障</li>
+                        </ul>
+                    </div>
+                    <div class="grid-item">
+                        <h3>技術保護</h3>
+                        <ul>
+                            <li>TLS 1.3 + AES-256</li>
+                            <li>角色權限控制</li>
+                            <li>完整審計日誌</li>
+                            <li>定期安全稽核</li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="highlight">
-                    <h3>技術保護</h3>
-                    <ul>
-                        <li>加密：TLS 1.3（傳輸）+ AES-256（存儲）</li>
-                        <li>存取控制：角色權限（HR 主管 > 顧問 > AI）</li>
-                        <li>審計日誌：所有存取留記錄</li>
-                    </ul>
+                    <strong>風險等級分類</strong>：薪資/績效（極高）｜履歷（中）｜職缺（低）
                 </div>
             </div>
         </div>
 
-        <!-- Slide 6: 導入評估框架 -->
+        <!-- Slide 6: 導入評估 -->
         <div class="slide">
-            <h2>📊 導入前評估（5 個維度）</h2>
             <div class="content">
+                <h2>📊 導入前評估（5 個維度）</h2>
                 <ul>
-                    <li><span class="emoji">🎯</span><strong>業務需求</strong>：痛點明確？量化目標？預算時程？</li>
-                    <li><span class="emoji">📂</span><strong>數據就緒度</strong>：格式？品質？數據量？</li>
-                    <li><span class="emoji">⚙️</span><strong>技術可行性</strong>：系統整合？團隊能力？基礎設施？</li>
-                    <li><span class="emoji">👥</span><strong>組織準備度</strong>：高層支持？團隊接受度？變革管理？</li>
-                    <li><span class="emoji">⚖️</span><strong>合規風險</strong>：法規檢查？數據保護？員工告知？</li>
+                    <li><span class="emoji">🎯</span><strong>業務需求</strong> - 痛點明確？量化目標？預算時程？</li>
+                    <li><span class="emoji">📂</span><strong>數據就緒度</strong> - 格式？品質？數據量是否足夠？</li>
+                    <li><span class="emoji">⚙️</span><strong>技術可行性</strong> - 系統整合？團隊能力？基礎設施？</li>
+                    <li><span class="emoji">👥</span><strong>組織準備度</strong> - 高層支持？團隊接受度？變革管理？</li>
+                    <li><span class="emoji">⚖️</span><strong>合規風險</strong> - 法規檢查？數據保護？員工告知？</li>
                 </ul>
             </div>
         </div>
 
         <!-- Slide 7: 分階段導入 -->
         <div class="slide">
-            <h2>🚀 分階段導入路徑</h2>
             <div class="content">
+                <h2>🚀 分階段導入策略</h2>
                 <div class="flow">
                     <div class="flow-item">
                         <strong>階段 1</strong><br>
                         MVP<br>
-                        1-2 個月
+                        1-2 月
                     </div>
                     <div class="arrow">→</div>
                     <div class="flow-item">
                         <strong>階段 2</strong><br>
                         擴展<br>
-                        2-3 個月
+                        2-3 月
                     </div>
                     <div class="arrow">→</div>
                     <div class="flow-item">
                         <strong>階段 3</strong><br>
                         深化<br>
-                        3-6 個月
+                        3-6 月
                     </div>
                 </div>
                 <div class="highlight">
                     <ul>
-                        <li><strong>MVP</strong>：單一流程（履歷解析）→ 快速見效</li>
-                        <li><strong>擴展</strong>：招募全流程 → 減少 30% 招募週期</li>
-                        <li><strong>深化</strong>：選育用留 → 降低 20% 離職率</li>
+                        <li><strong>MVP</strong> - 單一流程自動化，快速見效</li>
+                        <li><strong>擴展</strong> - 招募全流程，縮短 30% 週期</li>
+                        <li><strong>深化</strong> - 選育用留完整，降低 20% 離職率</li>
                     </ul>
                 </div>
             </div>
@@ -506,8 +550,8 @@
 
         <!-- Slide 8: 選育用留概覽 -->
         <div class="slide">
-            <h2>💼 選育用留完整方案</h2>
             <div class="content">
+                <h2>💼 選育用留完整方案</h2>
                 <div class="grid">
                     <div class="grid-item">
                         <h3>選（招募）</h3>
@@ -519,7 +563,7 @@
                     </div>
                     <div class="grid-item">
                         <h3>用（績效）</h3>
-                        <p>OKR → 評估 → AI 回饋 → 薪資福利</p>
+                        <p>OKR → 評估 → AI 回饋 → 薪資優化</p>
                     </div>
                     <div class="grid-item">
                         <h3>留（留任）</h3>
@@ -529,169 +573,83 @@
             </div>
         </div>
 
-        <!-- Slide 9: 選 - 招募流程 -->
+        <!-- Slide 9: 招募流程 -->
         <div class="slide">
-            <h2>選（招募）- 完整流程</h2>
             <div class="content">
+                <h2>選（招募）完整自動化流程</h2>
                 <div class="flow" style="flex-direction: column;">
-                    <div class="flow-item" style="width: 100%; margin: 10px 0;">
-                        <strong>階段 1：需求分析</strong> - JD 管理、職缺追蹤
+                    <div class="flow-item" style="width: 100%; margin: 8px 0;">
+                        <strong>需求分析</strong> - JD 生成、職缺追蹤
                     </div>
                     <div class="arrow" style="transform: rotate(90deg);">→</div>
-                    <div class="flow-item" style="width: 100%; margin: 10px 0;">
-                        <strong>階段 2：候選人搜尋</strong> - LinkedIn + GitHub + 履歷池
+                    <div class="flow-item" style="width: 100%; margin: 8px 0;">
+                        <strong>候選人搜尋</strong> - LinkedIn + GitHub + 履歷池
                     </div>
                     <div class="arrow" style="transform: rotate(90deg);">→</div>
-                    <div class="flow-item" style="width: 100%; margin: 10px 0;">
-                        <strong>階段 3：履歷解析與配對</strong> - AI 評分（技能 40% + 經驗 30%）
+                    <div class="flow-item" style="width: 100%; margin: 8px 0;">
+                        <strong>AI 配對評分</strong> - 技能 40% + 經驗 30% + 學歷 20%
                     </div>
                     <div class="arrow" style="transform: rotate(90deg);">→</div>
-                    <div class="flow-item" style="width: 100%; margin: 10px 0;">
-                        <strong>階段 4：面試排程</strong> - 自動排程 + 評估表生成
+                    <div class="flow-item" style="width: 100%; margin: 8px 0;">
+                        <strong>面試管理</strong> - 自動排程、評估表生成
                     </div>
                     <div class="arrow" style="transform: rotate(90deg);">→</div>
-                    <div class="flow-item" style="width: 100%; margin: 10px 0;">
-                        <strong>階段 5：Offer 管理</strong> - 個人化 Offer + 追蹤狀態
+                    <div class="flow-item" style="width: 100%; margin: 8px 0;">
+                        <strong>Offer 管理</strong> - 個人化 Offer、追蹤狀態
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Slide 10: 育 - 培訓系統 -->
+        <!-- Slide 10: 技術架構 -->
         <div class="slide">
-            <h2>育（培訓）- 個人化學習</h2>
             <div class="content">
-                <div class="highlight">
-                    <h3>新人 Onboarding 自動化</h3>
-                    <ul>
-                        <li>入職前：自動發歡迎信、Pre-boarding 資料</li>
-                        <li>第一週：自動排程（HR 報到、IT 設備、部門介紹）</li>
-                        <li>AI 陪伴：即時解答新人問題、主動提醒</li>
-                    </ul>
-                </div>
-                <div class="highlight">
-                    <h3>個人化學習路徑</h3>
-                    <ul>
-                        <li>技能評估 → 識別 Gap → 個人化計畫</li>
-                        <li>AI 推薦系統：根據進度調整難度</li>
-                        <li>持續評估：每月小測 + 每季專案 + 年度考核</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 11: 用 - 績效管理 -->
-        <div class="slide">
-            <h2>用（績效）- AI 輔助評估</h2>
-            <div class="content">
-                <div class="highlight">
-                    <h3>OKR 設定與追蹤</h3>
-                    <ul>
-                        <li>AI 建議 OKR（根據部門目標）</li>
-                        <li>SMART 檢查（可量化？可驗證？）</li>
-                        <li>自動提醒：進度落後 → 風險預警</li>
-                    </ul>
-                </div>
-                <div class="highlight">
-                    <h3>績效評估自動化</h3>
-                    <ul>
-                        <li>多維度數據：系統數據 + 同儕回饋 + 主管評估</li>
-                        <li>AI 綜合分析：目標達成 40% + 能力提升 30% + 同儕 20%</li>
-                        <li>報告自動生成：評分 + 改進建議 + 發展計畫</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 12: 留 - 離職預測 -->
-        <div class="slide">
-            <h2>留（留任）- 離職風險預測</h2>
-            <div class="content">
-                <div class="highlight">
-                    <h3>預測模型特徵</h3>
-                    <div class="grid">
-                        <div>
-                            <ul>
-                                <li>任職時長</li>
-                                <li>績效分數</li>
-                                <li>薪資競爭力</li>
-                                <li>晉升間隔</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <ul>
-                                <li>培訓時數</li>
-                                <li>同儕評價</li>
-                                <li>一對一頻率</li>
-                                <li>LinkedIn 活躍度</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="highlight">
-                    <h3>預警與行動</h3>
-                    <ul>
-                        <li><strong>高風險（>60%）</strong>：立即一對一 + 調薪/晉升討論</li>
-                        <li><strong>中風險（30-60%）</strong>：每月檢視 + 職涯規劃</li>
-                        <li><strong>低風險（<30%）</strong>：每季檢視</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 13: 技術架構 -->
-        <div class="slide">
-            <h2>⚙️ 技術架構</h2>
-            <div class="content">
+                <h2>⚙️ 技術架構設計</h2>
                 <div class="code">
 使用者介面層
 ├─ Telegram Bot / Web Dashboard / Email
-│
+
 OpenClaw Gateway
 ├─ Session Management / Auth / Cron
-│
+
 Agent 執行層
-├─ HR YuQi / Main YuQi / Marketing YuQi
-│
+├─ HR Agent / Main Agent / Marketing Agent
+
 技能層（Skills）
-├─ 履歷解析 / 候選人搜尋 / AI配對 / 報表生成
-│
-第三方整合層（APIs）
+├─ 履歷解析 / 候選人搜尋 / AI配對
+
+第三方整合
 ├─ Google (Sheets, Gmail, Calendar)
 ├─ OpenAI (GPT-4, Claude)
-├─ LinkedIn / GitHub / 104
-│
+└─ LinkedIn / GitHub
+
 數據存儲層
-└─ Google Sheets / Memory Files / Git Repo
+└─ Google Sheets / Memory Files / Git
                 </div>
             </div>
         </div>
 
-        <!-- Slide 14: Step1ne 實戰案例 -->
+        <!-- Slide 11: Step1ne 案例 -->
         <div class="slide">
-            <h2>💡 Step1ne 實戰案例</h2>
             <div class="content">
+                <h2>💡 Step1ne 實戰成果</h2>
                 <div class="highlight">
-                    <h3>挑戰</h3>
-                    <ul>
-                        <li>2 人團隊（Jacky + Phoebe）</li>
-                        <li>手動處理履歷（每筆 15 分鐘）</li>
-                        <li>候選人搜尋耗時（每職缺 4 小時）</li>
-                    </ul>
+                    <h3>挑戰背景</h3>
+                    <p>2 人團隊、手動處理履歷每筆 15 分鐘、候選人搜尋每職缺 4 小時</p>
                 </div>
                 <div class="grid">
                     <div class="grid-item">
-                        <h3>改善成果</h3>
+                        <h3>效率提升</h3>
                         <ul>
-                            <li>履歷處理：15 分 → 2 分（<strong>87%</strong>）</li>
-                            <li>候選人搜尋：4 hr → 30 分（<strong>88%</strong>）</li>
-                            <li>週報製作：2 hr → 5 分（<strong>96%</strong>）</li>
+                            <li>履歷處理：<strong>87% ↓</strong></li>
+                            <li>候選人搜尋：<strong>88% ↓</strong></li>
+                            <li>週報製作：<strong>96% ↓</strong></li>
                         </ul>
                     </div>
                     <div class="grid-item">
-                        <h3>規模</h3>
+                        <h3>業務成長</h3>
                         <ul>
-                            <li>履歷池：0 → 240+ 筆（6 週）</li>
+                            <li>履歷池：<strong>0 → 240+</strong></li>
                             <li>配對準確度：<strong>85%</strong></li>
                             <li>成本節省：<strong>120萬/年</strong></li>
                         </ul>
@@ -700,10 +658,10 @@ Agent 執行層
             </div>
         </div>
 
-        <!-- Slide 15: ROI 分析 -->
+        <!-- Slide 12: ROI 分析 -->
         <div class="slide">
-            <h2>💰 ROI 分析（50 人 HR 部門）</h2>
             <div class="content">
+                <h2>💰 投資回報分析</h2>
                 <table class="table">
                     <tr>
                         <th>項目</th>
@@ -717,18 +675,13 @@ Agent 執行層
                     </tr>
                     <tr>
                         <td>API 費用</td>
-                        <td>5,000/月</td>
+                        <td>-</td>
                         <td>6 萬</td>
                     </tr>
                     <tr>
                         <td>人力維護</td>
                         <td>-</td>
-                        <td>30 萬（0.5 人）</td>
-                    </tr>
-                    <tr>
-                        <td>基礎設施</td>
-                        <td>3,000/月</td>
-                        <td>3.6 萬</td>
+                        <td>30 萬</td>
                     </tr>
                     <tr>
                         <td><strong>總計</strong></td>
@@ -736,261 +689,178 @@ Agent 執行層
                         <td><strong>40 萬</strong></td>
                     </tr>
                 </table>
-                <div class="highlight" style="margin-top: 30px;">
+                <div class="highlight" style="text-align: center; margin-top: 30px;">
                     <div class="big-number">145%</div>
-                    <p style="font-size: 1.8em;">投資回報率（ROI）</p>
-                    <p class="small-text">人力成本節省 120 萬/年 ÷ 投入 55 萬</p>
-                    <p class="small-text">回本週期：<strong>5.5 個月</strong></p>
+                    <p style="font-size: 1.5em; margin-bottom: 10px;">投資回報率</p>
+                    <p class="small-text">回本週期：5.5 個月 | 年度淨利：80 萬</p>
                 </div>
             </div>
         </div>
 
-        <!-- Slide 16: 成本控制 -->
+        <!-- Slide 13: 成本控制 -->
         <div class="slide">
-            <h2>📉 成本控制策略</h2>
             <div class="content">
+                <h2>📉 成本控制策略</h2>
                 <div class="highlight">
                     <h3>Step1ne 實際成本（月）</h3>
-                    <ul style="font-size: 1.4em;">
-                        <li>OpenAI API：<strong>3,000</strong>（~300 次履歷解析 + 配對）</li>
+                    <ul style="font-size: 1.3em;">
+                        <li>OpenAI API：<strong>3,000</strong></li>
                         <li>Google Workspace：<strong>0</strong>（免費版）</li>
-                        <li>Telegram Bot：<strong>0</strong></li>
                         <li>總計：<strong>3,000/月</strong>（36,000/年）</li>
                     </ul>
                 </div>
-                <div class="highlight">
-                    <h3>優化方法</h3>
-                    <ul>
-                        <li>Prompt 優化：精簡 → 減少 Token</li>
-                        <li>批量處理：一次 10 筆 → 減少 API 呼叫</li>
-                        <li>快取結果：相同履歷不重複解析</li>
-                        <li>模型選擇：簡單任務用 GPT-3.5（成本 1/10）</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 17: 常見問題 -->
-        <div class="slide">
-            <h2>❓ 常見問題與解決方案</h2>
-            <div class="content">
-                <table class="table">
-                    <tr>
-                        <th>問題</th>
-                        <th>解決方案</th>
-                    </tr>
-                    <tr>
-                        <td>AI 解析履歷錯誤</td>
-                        <td>用 GPT-4、優化 Prompt、人工複查</td>
-                    </tr>
-                    <tr>
-                        <td>Google Sheets 換行錯亂</td>
-                        <td>匯入前清理 <code>\n</code> 和逗號</td>
-                    </tr>
-                    <tr>
-                        <td>LinkedIn/104 反爬蟲</td>
-                        <td>隨機延遲、降低頻率、使用官方 API</td>
-                    </tr>
-                    <tr>
-                        <td>數據重複</td>
-                        <td>匯入前去重檢查（姓名 + Email）</td>
-                    </tr>
-                    <tr>
-                        <td>成本失控</td>
-                        <td>快取機制、模型降級、Prompt 精簡</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-
-        <!-- Slide 18: 報價方案 -->
-        <div class="slide">
-            <h2>💼 報價方案</h2>
-            <div class="content">
                 <div class="grid">
                     <div class="grid-item">
-                        <h3>方案 A：基礎自動化</h3>
+                        <h3>優化方法</h3>
                         <ul>
-                            <li><strong>範圍</strong>：履歷解析 + 匯入</li>
-                            <li><strong>時程</strong>：4-6 週</li>
-                            <li><strong>費用</strong>：15 萬</li>
+                            <li>Prompt 精簡</li>
+                            <li>批量處理</li>
+                            <li>結果快取</li>
                         </ul>
                     </div>
                     <div class="grid-item">
-                        <h3>方案 B：招募全流程</h3>
+                        <h3>擴展預估</h3>
                         <ul>
-                            <li><strong>範圍</strong>：A + 搜尋 + 配對 + 追蹤</li>
-                            <li><strong>時程</strong>：8-12 週</li>
-                            <li><strong>費用</strong>：35 萬</li>
+                            <li>中型：15,000/月</li>
+                            <li>大型：50,000/月</li>
                         </ul>
                     </div>
-                </div>
-                <div class="highlight" style="margin-top: 30px;">
-                    <h3>方案 C：選育用留全流程</h3>
-                    <ul>
-                        <li><strong>範圍</strong>：B + 培訓 + 績效 + 離職預測</li>
-                        <li><strong>時程</strong>：16-24 週</li>
-                        <li><strong>費用</strong>：80 萬</li>
-                    </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Slide 19: 關鍵要點 -->
+        <!-- Slide 14: 報價方案 -->
         <div class="slide">
-            <h2>🎯 關鍵要點</h2>
             <div class="content">
-                <ul style="font-size: 1.6em;">
-                    <li><span class="emoji">💡</span><strong>落地型 AI</strong> 不是聊天機器人，而是執行系統</li>
-                    <li><span class="emoji">🔒</span><strong>資安合規</strong> 是底線，不是選項</li>
-                    <li><span class="emoji">🚀</span><strong>分階段導入</strong> 比一次到位更穩健</li>
-                    <li><span class="emoji">💼</span><strong>選育用留全流程</strong> 才能發揮最大價值</li>
-                    <li><span class="emoji">💰</span><strong>ROI 145%</strong>，5.5 個月回本</li>
+                <h2>💼 服務方案</h2>
+                <div class="grid">
+                    <div class="grid-item">
+                        <h3>方案 A - 基礎</h3>
+                        <p><strong>15 萬</strong> | 4-6 週</p>
+                        <p class="small-text">履歷解析 + 自動匯入</p>
+                    </div>
+                    <div class="grid-item">
+                        <h3>方案 B - 進階</h3>
+                        <p><strong>35 萬</strong> | 8-12 週</p>
+                        <p class="small-text">招募全流程自動化</p>
+                    </div>
+                </div>
+                <div class="highlight" style="margin-top: 25px;">
+                    <h3>方案 C - 完整解決方案</h3>
+                    <p><strong>80 萬</strong> | 16-24 週</p>
+                    <p class="small-text">選育用留 + 培訓 + 績效 + 離職預測</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: 關鍵要點 -->
+        <div class="slide">
+            <div class="content">
+                <h2>🎯 核心價值主張</h2>
+                <ul style="font-size: 1.5em;">
+                    <li><span class="emoji">💡</span>落地型 AI：從建議到執行</li>
+                    <li><span class="emoji">🔒</span>資安合規：底線不可妥協</li>
+                    <li><span class="emoji">🚀</span>分階段導入：穩健可控</li>
+                    <li><span class="emoji">💼</span>選育用留：全流程價值</li>
+                    <li><span class="emoji">💰</span>明確 ROI：5.5 個月回本</li>
                 </ul>
             </div>
         </div>
 
-        <!-- Slide 20: 下一步行動 -->
+        <!-- Slide 16: 下一步 -->
         <div class="slide">
-            <h2>🚀 下一步行動</h2>
             <div class="content">
+                <h2>🚀 立即行動</h2>
                 <div class="highlight">
-                    <ul style="font-size: 1.5em;">
-                        <li>✅ 評估自己的 AI 成熟度（Level 0-4）</li>
-                        <li>✅ 識別最大痛點（從選育用留中選 1-2 個）</li>
-                        <li>✅ 執行需求訪談（用指南中的問題清單）</li>
-                        <li>✅ 規劃 MVP（2 個月內快速見效）</li>
-                        <li>✅ 建立合規機制（資安優先）</li>
+                    <ul style="font-size: 1.4em;">
+                        <li>✅ 評估您的 AI 成熟度（Level 0-4）</li>
+                        <li>✅ 識別最大痛點（選育用留）</li>
+                        <li>✅ 需求訪談與評估</li>
+                        <li>✅ 規劃 MVP（2 個月見效）</li>
+                        <li>✅ 建立合規機制</li>
                     </ul>
                 </div>
-                <div class="highlight" style="margin-top: 30px; font-size: 1.3em; text-align: center;">
+                <div class="highlight" style="margin-top: 30px; text-align: center; font-size: 1.3em;">
                     <p><strong>AI 不是用來「取代人」</strong></p>
                     <p><strong>而是用來「解放人」</strong></p>
-                    <p class="small-text">讓 HR 從重複性工作中解放，專注於真正需要人性判斷的事情</p>
                 </div>
             </div>
         </div>
 
-        <!-- Slide 21: 聯絡方式 -->
+        <!-- Slide 17: 聯絡方式 -->
         <div class="slide">
-            <h2>📞 聯絡我們</h2>
-            <div class="content">
-                <div class="highlight">
-                    <h3 style="text-align: center; margin-bottom: 40px;">Step1ne 團隊</h3>
-                    <ul style="font-size: 1.5em; text-align: center; list-style: none;">
-                        <li style="margin: 20px 0; padding: 0;">📧 Email: jacky@step1ne.com</li>
-                        <li style="margin: 20px 0; padding: 0;">💬 Telegram: @jackyyuqi</li>
-                        <li style="margin: 20px 0; padding: 0;">🔗 GitHub: github.com/jacky6658/step1ne-headhunter-skill</li>
-                    </ul>
-                </div>
-                <div style="text-align: center; margin-top: 50px; font-size: 3em;">
-                    謝謝！
+            <div class="content cover">
+                <h2 style="margin-bottom: 50px;">📞 聯絡我們</h2>
+                <div class="company" style="margin-bottom: 40px;">STEP1NE</div>
+                <ul style="font-size: 1.4em; text-align: center; list-style: none;">
+                    <li style="margin: 20px 0; padding: 0;">📧 jacky@step1ne.com</li>
+                    <li style="margin: 20px 0; padding: 0;">💬 Telegram: @jackyyuqi</li>
+                    <li style="margin: 20px 0; padding: 0;">🔗 GitHub: github.com/jacky6658</li>
+                </ul>
+                <div style="margin-top: 60px; font-size: 2.5em; color: var(--accent-gold);">
+                    謝謝聆聽
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="slide-number">
-        <span id="current-slide">1</span> / <span id="total-slides">21</span>
     </div>
 
     <div class="controls">
-        <button id="prevBtn">← 上一頁</button>
-        <button id="nextBtn">下一頁 →</button>
+        <button class="btn" id="prevBtn">← 上一頁</button>
+        <button class="btn" id="nextBtn">下一頁 →</button>
     </div>
 
     <script>
-        let currentSlide = 0;
+        let current = 0;
         const slides = document.querySelectorAll('.slide');
-        const totalSlides = slides.length;
+        const total = slides.length;
+        const currentEl = document.getElementById('current');
+        const totalEl = document.getElementById('total');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
         
-        document.getElementById('total-slides').textContent = totalSlides;
+        totalEl.textContent = total;
+        updateProgress();
         
-        function showSlide(n) {
-            slides[currentSlide].classList.remove('active');
-            currentSlide = (n + totalSlides) % totalSlides;
-            slides[currentSlide].classList.add('active');
-            document.getElementById('current-slide').textContent = currentSlide + 1;
+        function go(n) {
+            slides[current].classList.remove('active');
+            current = (n + total) % total;
+            slides[current].classList.add('active');
+            currentEl.textContent = current + 1;
+            updateProgress();
         }
         
-        function nextSlide() {
-            showSlide(currentSlide + 1);
+        function updateProgress() {
+            const progress = ((current + 1) / total) * 100;
+            progressBar.style.width = progress + '%';
         }
         
-        function previousSlide() {
-            showSlide(currentSlide - 1);
-        }
+        prevBtn.onclick = () => go(current - 1);
+        nextBtn.onclick = () => go(current + 1);
         
-        // 按鈕事件（使用 addEventListener 而非 onclick）
-        document.getElementById('prevBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            previousSlide();
-        }, false);
-        
-        document.getElementById('nextBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            nextSlide();
-        }, false);
-        
-        // 按鈕觸控事件
-        document.getElementById('prevBtn').addEventListener('touchend', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            previousSlide();
-        }, false);
-        
-        document.getElementById('nextBtn').addEventListener('touchend', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            nextSlide();
-        }, false);
-        
-        // 鍵盤控制
-        document.addEventListener('keydown', function(e) {
+        document.onkeydown = (e) => {
             if (e.key === 'ArrowRight' || e.key === ' ') {
                 e.preventDefault();
-                nextSlide();
+                go(current + 1);
             } else if (e.key === 'ArrowLeft') {
                 e.preventDefault();
-                previousSlide();
+                go(current - 1);
             }
-        });
+        };
         
-        // 滑動支援（避免與按鈕衝突）
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let isSwiping = false;
-        
-        document.addEventListener('touchstart', function(e) {
-            // 如果點擊的是按鈕，不處理滑動
-            if (e.target.tagName === 'BUTTON') {
-                isSwiping = false;
-                return;
-            }
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            isSwiping = true;
+        let startX = 0;
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.classList.contains('btn')) return;
+            startX = e.touches[0].clientX;
         }, { passive: true });
         
-        document.addEventListener('touchend', function(e) {
-            if (!isSwiping || e.target.tagName === 'BUTTON') return;
-            
-            const touchEndX = e.changedTouches[0].clientX;
-            const touchEndY = e.changedTouches[0].clientY;
-            const diffX = touchStartX - touchEndX;
-            const diffY = Math.abs(touchStartY - touchEndY);
-            
-            // 只有水平滑動才換頁（避免垂直滾動時誤觸）
-            if (Math.abs(diffX) > 50 && diffY < 30) {
-                if (diffX > 0) {
-                    nextSlide();
-                } else {
-                    previousSlide();
-                }
+        document.addEventListener('touchend', (e) => {
+            if (e.target.classList.contains('btn')) return;
+            const endX = e.changedTouches[0].clientX;
+            const diff = startX - endX;
+            if (Math.abs(diff) > 50) {
+                diff > 0 ? go(current + 1) : go(current - 1);
             }
-            isSwiping = false;
         }, { passive: true });
     </script>
 </body>
